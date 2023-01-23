@@ -1,8 +1,15 @@
 import * as React from 'react';
-import { FieldLevelHelp } from '@odf/shared/generic/FieldLevelHelp';
+import { useK8sList } from '@odf/shared/hooks/useK8sList';
+import {
+  TextInputWithFieldRequirements,
+  useYupValidationResolver,
+} from '@odf/shared/input-with-requirements';
+import { getName } from '@odf/shared/selectors';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
 import { useFlag } from '@openshift-console/dynamic-plugin-sdk';
 import { TFunction } from 'i18next';
+import { useForm } from 'react-hook-form';
+import * as Yup from 'yup';
 import {
   Alert,
   AlertActionCloseButton,
@@ -10,12 +17,10 @@ import {
   FormGroup,
   Radio,
   TextArea,
-  TextInput,
-  ValidatedOptions,
 } from '@patternfly/react-core';
 import { FEATURES } from '../../../features';
-import { BucketClassType } from '../../../types';
-import { validateBucketClassName } from '../../../utils';
+import { NooBaaBucketClassModel } from '../../../models';
+import { BucketClassKind, BucketClassType } from '../../../types';
 import { ExternalLink } from '../../mcg-endpoints/gcp-endpoint-type';
 import { Action, State } from '../state';
 import '../create-bc.scss';
@@ -44,19 +49,71 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
 
   const [showHelp, setShowHelp] = React.useState(true);
 
-  const [validated, setValidated] = React.useState<ValidatedOptions>(
-    ValidatedOptions.default
+  const isNamespaceStoreSupported = useFlag(FEATURES.OCS_NAMESPACE_STORE);
+  const [existingNames, setExistingNames] = React.useState<string[]>([]);
+
+  const [data, loaded, loadError] = useK8sList<BucketClassKind>(
+    NooBaaBucketClassModel,
+    'openshift-storage'
   );
 
-  const isNamespaceStoreSupported = useFlag(FEATURES.OCS_NAMESPACE_STORE);
-  const onChange = (value: string) => {
-    dispatch({ type: 'setBucketClassName', name: value });
-    if (validateBucketClassName(value)) {
-      setValidated(ValidatedOptions.success);
-    } else {
-      setValidated(ValidatedOptions.error);
+  React.useEffect(() => {
+    if (loaded) {
+      const names = data.map((data: BucketClassKind) => getName(data));
+      setExistingNames(names);
     }
-  };
+    if (loadError) setExistingNames([]);
+  }, [data, loaded, loadError]);
+
+  const fieldRequirements = [
+    t('3-63 characters'),
+    t('Starts and ends with a lowercase letter or number'),
+    t('Only lowercase letters, numbers, non-consecutive periods, or hyphens'),
+    t('Globally unique name'),
+  ];
+
+  const schema = Yup.object({
+    ['bucketclassname-input']: Yup.string()
+      .required()
+      .min(3, fieldRequirements[0])
+      .max(63, fieldRequirements[0])
+      .matches(
+        /^(?![-.])([a-z0-9]|[-.]([a-z0-9]))+(?![-.])$/,
+        fieldRequirements[1]
+      )
+      .matches(
+        /^[a-z0-9]+([a-z0-9]|([-.](?![-.])))*[a-z0-9]*$/,
+        fieldRequirements[2]
+      )
+      .test(
+        'unique-name',
+        fieldRequirements[3],
+        (value: string) => !!!existingNames.includes(value)
+      ),
+  });
+  const resolver = useYupValidationResolver(schema);
+  const {
+    control,
+    formState: { errors },
+    watch,
+  } = useForm({
+    mode: 'all',
+    reValidateMode: 'onChange',
+    resolver: resolver,
+    context: undefined,
+    criteriaMode: 'firstError',
+    shouldFocusError: true,
+    shouldUnregister: false,
+    shouldUseNativeValidation: false,
+    delayError: undefined,
+  });
+
+  const bucketClassName = watch('bucketclassname-input');
+
+  React.useEffect(() => {
+    if (!errors)
+      dispatch({ type: 'setBucketClassName', name: bucketClassName });
+  }, [bucketClassName, dispatch, errors]);
 
   return (
     <div className="nb-create-bc-step-page">
@@ -110,40 +167,29 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
             })}
           </FormGroup>
         )}
-        <FormGroup
-          labelIcon={
-            <FieldLevelHelp>
-              <ul>
-                <li>{t('3-63 chars')}</li>
-                <li>{t('Starts and ends with lowercase number or letter')}</li>
-                <li>
-                  {t(
-                    'Only lowercase letters, numbers, non-consecutive periods or hyphens'
-                  )}
-                </li>
-                <li>{t('Avoid using the form of an IP address')}</li>
-                <li>{t('Globally unique name')}</li>
-              </ul>
-            </FieldLevelHelp>
-          }
-          className="nb-create-bc-step-page-form__element"
-          fieldId="bucketclassname-input"
-          label={t('BucketClass name')}
-          helperText={t(
-            'A unique name for the bucket class within the project.'
-          )}
-        >
-          <TextInput
-            data-test="bucket-class-name"
-            placeholder={t('my-multi-cloud-mirror')}
-            type="text"
-            id="bucketclassname-input"
-            value={state.bucketClassName}
-            onChange={onChange}
-            validated={validated}
-            aria-label={t('BucketClass Name')}
-          />
-        </FormGroup>
+
+        <TextInputWithFieldRequirements
+          control={control}
+          fieldRequirements={fieldRequirements}
+          formGroupProps={{
+            className: 'nb-create-bc-step-page-form__element',
+            fieldId: 'bucketclassname-input',
+            label: t('BucketClass name'),
+            helperText: t(
+              'A unique name for the bucket class within the project.'
+            ),
+            isRequired: true,
+          }}
+          textInputProps={{
+            name: 'bucketclassname-input',
+            ['data-test']: 'bucket-class-name',
+            placeholder: t('my-multi-cloud-mirror'),
+            type: 'text',
+            id: 'bucketclassname-input',
+            value: state.bucketClassName,
+            ['aria-label']: t('BucketClass Name'),
+          }}
+        />
         <FormGroup
           className="nb-create-bc-step-page-form__element"
           fieldId="bc-description"
