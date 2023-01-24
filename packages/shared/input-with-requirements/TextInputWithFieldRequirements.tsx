@@ -23,6 +23,7 @@ import './TextInputWithFieldRequirements.scss';
 export type TextInputWithFieldRequirementsProps = {
   fieldRequirements: string[];
   control: Control<FieldValues>;
+  defaultValue?: any;
   formGroupProps: FormGroupProps;
   textInputProps: TextInputProps & {
     ['data-test']: string;
@@ -62,13 +63,20 @@ export const ValidationIcon: React.FC<ValidationIconProp> = ({ status }) => {
 };
 
 const TextInputWithFieldRequirements: React.FC<TextInputWithFieldRequirementsProps> =
-  ({ fieldRequirements, control, formGroupProps, textInputProps }) => {
+  ({
+    fieldRequirements,
+    control,
+    formGroupProps,
+    textInputProps,
+    defaultValue = '',
+  }) => {
     const {
       field: { name, value, onChange },
       fieldState: { error, isDirty },
     } = useController({
       name: textInputProps.name || 'name',
       control,
+      defaultValue: defaultValue,
     });
     const state = useFieldRequirements(fieldRequirements, isDirty, error);
     const [isVisible, setIsVisible] = React.useState(false);
