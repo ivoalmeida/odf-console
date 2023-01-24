@@ -3,6 +3,11 @@ import { getStorageClassDescription } from '@odf/core/utils';
 import ResourceDropdown from '@odf/shared/dropdown/ResourceDropdown';
 import ResourcesDropdown from '@odf/shared/dropdown/ResourceDropdown';
 import { ButtonBar } from '@odf/shared/generic/ButtonBar';
+import { useK8sList } from '@odf/shared/hooks/useK8sList';
+import {
+  TextInputWithFieldRequirements,
+  useYupValidationResolver,
+} from '@odf/shared/input-with-requirements';
 import { StorageClassModel } from '@odf/shared/models';
 import { getName } from '@odf/shared/selectors';
 import { K8sResourceKind, StorageClassResourceKind } from '@odf/shared/types';
@@ -14,8 +19,10 @@ import {
 } from '@openshift-console/dynamic-plugin-sdk';
 import * as _ from 'lodash-es';
 import { Helmet } from 'react-helmet';
+import { useForm } from 'react-hook-form';
 import { match, useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
+import * as Yup from 'yup';
 import { ActionGroup, Button } from '@patternfly/react-core';
 import {
   NooBaaObjectBucketClaimModel,
@@ -46,10 +53,76 @@ export const CreateOBCForm: React.FC<CreateOBCFormProps> = (props) => {
   const { state, dispatch, namespace } = props;
   const isNoobaa = state.scProvisioner?.includes(NB_PROVISIONER);
 
-  const onScChange = (sc) => {
-    dispatch({ type: 'setStorage', name: getName(sc) });
-    dispatch({ type: 'setProvisioner', name: sc?.provisioner });
-  };
+  const onScChange = React.useCallback(
+    (sc) => {
+      dispatch({ type: 'setStorage', name: getName(sc) });
+      dispatch({ type: 'setProvisioner', name: sc?.provisioner });
+    },
+    [dispatch]
+  );
+
+  const [existingNames, setExistingNames] = React.useState<string[]>([]);
+
+  const [data, loaded, loadError] = useK8sList(
+    NooBaaObjectBucketClaimModel,
+    namespace
+  );
+  React.useEffect(() => {
+    if (loaded) {
+      const names = data?.map((data) => getName(data));
+      setExistingNames(names);
+    }
+    if (loadError) setExistingNames([]);
+  }, [data, loaded, loadError]);
+
+  const fieldRequirements = [
+    t('No more than 253 characters'),
+    t('Starts and ends with a lowercase letter or number'),
+    t('Only lowercase letters, numbers, non-consecutive periods, or hyphens'),
+    t('Cannot be used before'),
+  ];
+
+  const schema = Yup.object({
+    obcName: Yup.string()
+      .max(253, fieldRequirements[0])
+      .matches(
+        /^(?![-.])([a-z0-9]|[-.]*([a-z0-9]))+(?![-.])$/,
+        fieldRequirements[1]
+      )
+      .matches(
+        /^[a-z0-9]+([a-z0-9]|([-.](?![-.])))*[a-z0-9]*$/,
+        fieldRequirements[2]
+      )
+      .test(
+        'unique-name',
+        fieldRequirements[3],
+        (value: string) => !!!existingNames.includes(value)
+      ),
+  });
+
+  const resolver = useYupValidationResolver(schema);
+
+  const {
+    control,
+    watch,
+    formState: { isValid },
+  } = useForm({
+    mode: 'all',
+    reValidateMode: 'onChange',
+    resolver: resolver,
+    context: undefined,
+    criteriaMode: 'firstError',
+    shouldFocusError: true,
+    shouldUnregister: false,
+    shouldUseNativeValidation: false,
+    delayError: undefined,
+  });
+
+  const obcName = watch('obcName');
+
+  React.useEffect(() => {
+    onScChange(isValid ? obcName : undefined);
+  }, [obcName, onScChange, isValid]);
 
   React.useEffect(() => {
     const obj: K8sResourceKind = {
@@ -100,76 +173,69 @@ export const CreateOBCForm: React.FC<CreateOBCFormProps> = (props) => {
 
   return (
     <div>
+      <TextInputWithFieldRequirements
+        control={control}
+        fieldRequirements={fieldRequirements}
+        formGroupProps={{
+          label: t('ObjectBucketClaim Name'),
+          fieldId: 'obc-name',
+          className: 'control-label',
+          helperText: t('If not provided a generic name will be generated.'),
+        }}
+        textInputProps={{
+          id: 'obc-name',
+          name: 'obcName',
+          className: 'pf-c-form-control',
+          type: 'text',
+          placeholder: t('my-object-bucket'),
+          ['aria-describedby']: 'obc-name-help',
+          ['data-test']: 'obc-name',
+        }}
+      />
       <div className="form-group">
-        <label className="control-label" htmlFor="obc-name">
-          {t('ObjectBucketClaim Name')}
+        <label className="control-label" htmlFor="sc-dropdown">
+          {t('StorageClass')}
         </label>
         <div className="form-group">
-          <input
-            className="pf-c-form-control"
-            type="text"
-            onChange={(e) =>
-              dispatch({ type: 'setName', name: e.currentTarget.value.trim() })
-            }
-            value={state.name}
-            placeholder={t('my-object-bucket')}
-            aria-describedby="obc-name-help"
-            id="obc-name"
-            data-test="obc-name"
-            name="obcName"
-            pattern="[a-z0-9](?:[-a-z0-9]*[a-z0-9])?"
+          <ResourcesDropdown<StorageClassResourceKind>
+            resourceModel={StorageClassModel}
+            onSelect={(res) => onScChange(res)}
+            filterResource={isObjectSC}
+            className="odf-mcg__resource-dropdown"
+            id="sc-dropdown"
+            data-test="sc-dropdown"
+            resource={storageClassResource}
+            secondaryTextGenerator={getStorageClassDescription}
           />
-          <p className="help-block" id="obc-name-help">
-            {t('If not provided a generic name will be generated.')}
+          <p className="help-block">
+            {t('Defines the object-store service and the bucket provisioner.')}
           </p>
         </div>
+      </div>
+      {isNoobaa && (
         <div className="form-group">
-          <label className="control-label" htmlFor="sc-dropdown">
-            {t('StorageClass')}
+          <label className="control-label odf-required" htmlFor="obc-name">
+            {t('BucketClass')}
           </label>
           <div className="form-group">
-            <ResourcesDropdown<StorageClassResourceKind>
-              resourceModel={StorageClassModel}
-              onSelect={(res) => onScChange(res)}
-              filterResource={isObjectSC}
+            <ResourceDropdown<K8sResourceKind>
+              onSelect={(sc) =>
+                dispatch({ type: 'setBucketClass', name: sc.metadata?.name })
+              }
               className="odf-mcg__resource-dropdown"
-              id="sc-dropdown"
-              data-test="sc-dropdown"
-              resource={storageClassResource}
-              secondaryTextGenerator={getStorageClassDescription}
+              initialSelection={(resources) =>
+                resources.find(
+                  (res) => res.metadata.name === 'noobaa-default-bucket-class'
+                )
+              }
+              id="bc-dropdown"
+              data-test="bc-dropdown"
+              resource={bucketClassResource}
+              resourceModel={NooBaaBucketClassModel}
             />
-            <p className="help-block">
-              {t(
-                'Defines the object-store service and the bucket provisioner.'
-              )}
-            </p>
           </div>
         </div>
-        {isNoobaa && (
-          <div className="form-group">
-            <label className="control-label odf-required" htmlFor="obc-name">
-              {t('BucketClass')}
-            </label>
-            <div className="form-group">
-              <ResourceDropdown<K8sResourceKind>
-                onSelect={(sc) =>
-                  dispatch({ type: 'setBucketClass', name: sc.metadata?.name })
-                }
-                className="odf-mcg__resource-dropdown"
-                initialSelection={(resources) =>
-                  resources.find(
-                    (res) => res.metadata.name === 'noobaa-default-bucket-class'
-                  )
-                }
-                id="bc-dropdown"
-                data-test="bc-dropdown"
-                resource={bucketClassResource}
-                resourceModel={NooBaaBucketClassModel}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };

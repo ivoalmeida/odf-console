@@ -109,7 +109,7 @@ export const BlockPoolBody = (props: BlockPoolBodyPros) => {
   ];
 
   const schema = Yup.object({
-    ['newPoolName']: Yup.string()
+    newPoolName: Yup.string()
       .required()
       .max(253, fieldRequirements[0])
       .matches(
@@ -146,10 +146,9 @@ export const BlockPoolBody = (props: BlockPoolBodyPros) => {
   const poolName = watch('newPoolName');
 
   React.useEffect(() => {
-    const payload = isValid ? poolName : undefined;
     dispatch({
       type: BlockPoolActionType.SET_POOL_NAME,
-      payload,
+      payload: isValid ? poolName : undefined,
     });
   }, [poolName, dispatch, isValid]);
 
