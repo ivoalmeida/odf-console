@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { checkArbiterCluster } from '@odf/core/utils';
 import { useK8sGet } from '@odf/shared/hooks/k8s-get-hook';
+import { useK8sList } from '@odf/shared/hooks/useK8sList';
+import {
+  TextInputWithFieldRequirements,
+  useYupValidationResolver,
+} from '@odf/shared/input-with-requirements';
+import { getName } from '@odf/shared/selectors';
 import {
   ListKind,
   StorageClusterKind,
@@ -9,6 +15,8 @@ import {
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
 import { useFlag } from '@openshift-console/dynamic-plugin-sdk';
 import * as _ from 'lodash-es';
+import { useForm } from 'react-hook-form';
+import * as Yup from 'yup';
 import {
   Alert,
   Dropdown,
@@ -26,7 +34,7 @@ import {
   POOL_PROGRESS,
   POOL_STATE,
 } from '../constants';
-import { StorageClusterModel } from '../models';
+import { StorageClusterModel, CephBlockPoolModel } from '../models';
 import {
   getErrorMessage,
   ProgressStatusProps,
@@ -78,6 +86,72 @@ export const BlockPoolBody = (props: BlockPoolBodyPros) => {
   const [availableDeviceClasses, setAvailableDeviceClasses] = React.useState(
     []
   );
+
+  const [existingNames, setExistingNames] = React.useState<string[]>([]);
+
+  const [data, loaded, loadError] = useK8sList(
+    CephBlockPoolModel,
+    'openshift-storage'
+  );
+  React.useEffect(() => {
+    if (loaded) {
+      const names = data?.map((data) => getName(data));
+      setExistingNames(names);
+    }
+    if (loadError) setExistingNames([]);
+  }, [data, loaded, loadError]);
+
+  const fieldRequirements = [
+    t('No more than 253 characters'),
+    t('Starts and ends with a lowercase letter or number'),
+    t('Only lowercase letters, numbers, non-consecutive periods, or hyphens'),
+    t('Cannot be used before'),
+  ];
+
+  const schema = Yup.object({
+    ['newPoolName']: Yup.string()
+      .required()
+      .max(253, fieldRequirements[0])
+      .matches(
+        /^(?![-.])([a-z0-9]|[-.]*([a-z0-9]))+(?![-.])$/,
+        fieldRequirements[1]
+      )
+      .matches(
+        /^[a-z0-9]+([a-z0-9]|([-.](?![-.])))*[a-z0-9]*$/,
+        fieldRequirements[2]
+      )
+      .test(
+        'unique-name',
+        fieldRequirements[3],
+        (value: string) => !!!existingNames.includes(value)
+      ),
+  });
+  const resolver = useYupValidationResolver(schema);
+  const {
+    control,
+    watch,
+    formState: { isValid },
+  } = useForm({
+    mode: 'all',
+    reValidateMode: 'onChange',
+    resolver: resolver,
+    context: undefined,
+    criteriaMode: 'firstError',
+    shouldFocusError: true,
+    shouldUnregister: false,
+    shouldUseNativeValidation: false,
+    delayError: undefined,
+  });
+
+  const poolName = watch('newPoolName');
+
+  React.useEffect(() => {
+    const payload = isValid ? poolName : undefined;
+    dispatch({
+      type: BlockPoolActionType.SET_POOL_NAME,
+      payload,
+    });
+  }, [poolName, dispatch, isValid]);
 
   // Failure Domain
   React.useEffect(() => {
@@ -204,29 +278,24 @@ export const BlockPoolBody = (props: BlockPoolBodyPros) => {
     <>
       {isClusterReady || !showPoolStatus ? (
         <>
-          <div className="form-group ceph-block-pool-body__input">
-            <label className="control-label co-required" htmlFor="pool-name">
-              {t('Pool name')}
-            </label>
-            <input
-              className="pf-c-form-control"
-              type="text"
-              onChange={(e) =>
-                dispatch({
-                  type: BlockPoolActionType.SET_POOL_NAME,
-                  payload: e.currentTarget.value,
-                })
-              }
-              value={state.poolName}
-              placeholder={t('my-block-pool')}
-              aria-describedby={t('pool-name-help')}
-              id="pool-name"
-              name="newPoolName"
-              data-test="new-pool-name-textbox"
-              disabled={isUpdate}
-              required
-            />
-          </div>
+          <TextInputWithFieldRequirements
+            control={control}
+            fieldRequirements={fieldRequirements}
+            formGroupProps={{
+              label: t('Pool name'),
+              fieldId: 'pool-name',
+              className: 'ceph-block-pool-body__input',
+              isRequired: true,
+            }}
+            textInputProps={{
+              id: 'pool-name',
+              name: 'newPoolName',
+              ['data-test']: 'new-pool-name-textbox',
+              ['aria-describedby']: t('pool-name-help'),
+              placeholder: t('my-block-pool'),
+              disabled: isUpdate,
+            }}
+          />
           <div className="form-group ceph-block-pool-body__input">
             <label
               className="control-label co-required"

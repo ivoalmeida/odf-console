@@ -24,7 +24,10 @@ export type TextInputWithFieldRequirementsProps = {
   fieldRequirements: string[];
   control: Control<FieldValues>;
   formGroupProps: FormGroupProps;
-  textInputProps: TextInputProps & { ['data-test']: string };
+  textInputProps: TextInputProps & {
+    ['data-test']: string;
+    disabled?: boolean;
+  };
 };
 
 export type ValidationIconProp = {
