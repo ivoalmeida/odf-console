@@ -3,7 +3,16 @@ import { CEPH_STORAGE_NAMESPACE } from '@odf/shared/constants';
 import ResourceDropdown from '@odf/shared/dropdown/ResourceDropdown';
 import StaticDropdown from '@odf/shared/dropdown/StaticDropdown';
 import { ButtonBar } from '@odf/shared/generic/ButtonBar';
-import { PersistentVolumeClaimModel, SecretModel } from '@odf/shared/models';
+import { useK8sList } from '@odf/shared/hooks/useK8sList';
+import {
+  TextInputWithFieldRequirements,
+  useYupValidationResolver,
+} from '@odf/shared/input-with-requirements';
+import {
+  PersistentVolumeClaimModel,
+  SecretModel,
+  NamespaceModel,
+} from '@odf/shared/models';
 import { getName } from '@odf/shared/selectors';
 import { PersistentVolumeClaimKind, SecretKind } from '@odf/shared/types';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
@@ -13,13 +22,14 @@ import {
   K8sResourceCommon,
 } from '@openshift-console/dynamic-plugin-sdk';
 import classNames from 'classnames';
+import { useForm } from 'react-hook-form';
+import * as Yup from 'yup';
 import {
   ActionGroup,
   Button,
   FormGroup,
   Form,
   TextInput,
-  Tooltip,
 } from '@patternfly/react-core';
 import {
   BC_PROVIDERS,
@@ -106,7 +116,6 @@ const createSecret = async (
 
 const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
   const { t } = useCustomTranslation();
-  const [nsName, setNsName] = React.useState('');
   const [provider, setProvider] = React.useState(BC_PROVIDERS.AWS);
   const [pvc, setPVC] = React.useState<PersistentVolumeClaimKind>(null);
   const [folderName, setFolderName] = React.useState('');
@@ -117,14 +126,65 @@ const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
 
   const [inProgress, setProgress] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [existingNames, setExistingNames] = React.useState<string[]>([]);
 
-  const handleNsNameTextInputChange = (strVal: string) => setNsName(strVal);
   const { onCancel, className, redirectHandler, namespace } = props;
 
-  const onSubmit = async (event) => {
+  const [data, loaded, loadError] = useK8sList<NamespaceStoreKind>(
+    NamespaceModel,
+    'openshift-storage'
+  );
+  React.useEffect(() => {
+    if (loaded) {
+      const names = data?.map((data: NamespaceStoreKind) => getName(data));
+      setExistingNames(names);
+    }
+    if (loadError) setExistingNames([]);
+  }, [data, loaded, loadError]);
+
+  const fieldRequirements = [
+    t('No more than 43 characters'),
+    t('Starts and ends with a lowercase letter or number'),
+    t('Only lowercase letters, numbers, non-consecutive periods, or hyphens'),
+    t('A unique name for the namespace within the project'),
+  ];
+
+  const schema = Yup.object({
+    ['ns-name']: Yup.string()
+      .required()
+      .max(43, fieldRequirements[0])
+      .matches(
+        /^(?![-.])([a-z0-9]|[-.]*([a-z0-9]))+(?![-.])$/,
+        fieldRequirements[1]
+      )
+      .matches(
+        /^[a-z0-9]+([a-z0-9]|([-.](?![-.])))*[a-z0-9]*$/,
+        fieldRequirements[2]
+      )
+      .test(
+        'unique-name',
+        fieldRequirements[3],
+        (value: string) => !!!existingNames.includes(value)
+      ),
+  });
+  const resolver = useYupValidationResolver(schema);
+  const { control, handleSubmit } = useForm({
+    mode: 'all',
+    reValidateMode: 'onChange',
+    resolver: resolver,
+    context: undefined,
+    criteriaMode: 'firstError',
+    shouldFocusError: true,
+    shouldUnregister: false,
+    shouldUseNativeValidation: false,
+    delayError: undefined,
+  });
+
+  const onSubmit = async (values, event) => {
     event.preventDefault();
     setProgress(true);
     try {
+      const nsName = values['ns-name'];
       let { secretName } = providerDataState;
       if (!secretName) {
         /** Create a secret if secret ==='' */
@@ -204,33 +264,28 @@ const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
   return (
     <Form
       className={classNames('nb-endpoints-form', 'co-m-pane__body', className)}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       noValidate={false}
     >
-      <FormGroup
-        label={t('Namespace store name')}
-        fieldId="namespacestore-name"
-        className="nb-endpoints-form-entry"
-        helperText={t(
-          'A unique name for the namespace store within the project'
-        )}
-        isRequired
-      >
-        <Tooltip
-          content={t('Name can contain a max of 43 characters')}
-          isVisible={nsName.length > 42}
-          trigger="manual"
-        >
-          <TextInput
-            id="ns-name"
-            onChange={handleNsNameTextInputChange}
-            value={nsName}
-            maxLength={43}
-            data-test="namespacestore-name"
-            placeholder="my-namespacestore"
-          />
-        </Tooltip>
-      </FormGroup>
+      <TextInputWithFieldRequirements
+        control={control}
+        fieldRequirements={fieldRequirements}
+        formGroupProps={{
+          label: t('Namespace store name'),
+          fieldId: 'namespacestore-name',
+          className: 'nb-endpoints-form-entry',
+          helperText: t(
+            'A unique name for the namespace store within the project'
+          ),
+          isRequired: true,
+        }}
+        textInputProps={{
+          id: 'ns-name',
+          name: 'ns-name',
+          ['data-test']: 'namespacestore-name',
+          placeholder: 'my-namespacestore',
+        }}
+      />
 
       <FormGroup
         label={t('Provider')}
