@@ -8,11 +8,7 @@ import {
   TextInputWithFieldRequirements,
   useYupValidationResolver,
 } from '@odf/shared/input-with-requirements';
-import {
-  PersistentVolumeClaimModel,
-  SecretModel,
-  NamespaceModel,
-} from '@odf/shared/models';
+import { PersistentVolumeClaimModel, SecretModel } from '@odf/shared/models';
 import { getName } from '@odf/shared/selectors';
 import { PersistentVolumeClaimKind, SecretKind } from '@odf/shared/types';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
@@ -131,8 +127,8 @@ const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
   const { onCancel, className, redirectHandler, namespace } = props;
 
   const [data, loaded, loadError] = useK8sList<NamespaceStoreKind>(
-    NamespaceModel,
-    'openshift-storage'
+    NooBaaNamespaceStoreModel,
+    namespace
   );
   React.useEffect(() => {
     if (loaded) {
