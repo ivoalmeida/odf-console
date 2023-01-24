@@ -81,6 +81,7 @@ const TextInputWithFieldRequirements: React.FC<TextInputWithFieldRequirementsPro
       event: React.FormEvent<HTMLInputElement>
     ) => {
       if (!isVisible) setIsVisible(true);
+      textInputProps?.onChange?.(value, event);
       onChange(value, event);
     };
 
