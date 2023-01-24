@@ -78,7 +78,7 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
       .min(3, fieldRequirements[0])
       .max(63, fieldRequirements[0])
       .matches(
-        /^(?![-.])([a-z0-9]|[-.]([a-z0-9]))+(?![-.])$/,
+        /^(?![-.])([a-z0-9]|[-.]*([a-z0-9]))+(?![-.])$/,
         fieldRequirements[1]
       )
       .matches(
