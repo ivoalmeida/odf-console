@@ -50,6 +50,7 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
   const [showHelp, setShowHelp] = React.useState(true);
 
   const isNamespaceStoreSupported = useFlag(FEATURES.OCS_NAMESPACE_STORE);
+
   const [existingNames, setExistingNames] = React.useState<string[]>([]);
 
   const [data, loaded, loadError] = useK8sList<BucketClassKind>(
@@ -94,7 +95,7 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
   const resolver = useYupValidationResolver(schema);
   const {
     control,
-    formState: { errors },
+    formState: { isValid },
     watch,
   } = useForm({
     mode: 'all',
@@ -111,9 +112,9 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
   const bucketClassName = watch('bucketclassname-input');
 
   React.useEffect(() => {
-    if (!errors)
+    if (isValid)
       dispatch({ type: 'setBucketClassName', name: bucketClassName });
-  }, [bucketClassName, dispatch, errors]);
+  }, [bucketClassName, dispatch, isValid]);
 
   return (
     <div className="nb-create-bc-step-page">
