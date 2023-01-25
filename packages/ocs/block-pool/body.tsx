@@ -143,16 +143,14 @@ export const BlockPoolBody = (props: BlockPoolBodyPros) => {
     delayError: undefined,
   });
 
-  React.useEffect(() => {
-    const subscription = watch((data) => {
-      dispatch({
-        type: BlockPoolActionType.SET_POOL_NAME,
-        payload: isValid ? data['newPoolName'] : undefined,
-      });
-    });
+  const poolName = watch('newPoolName');
 
-    return () => subscription.unsubscribe();
-  }, [dispatch, isValid, watch]);
+  React.useEffect(() => {
+    dispatch({
+      type: BlockPoolActionType.SET_POOL_NAME,
+      payload: isValid ? poolName : undefined,
+    });
+  }, [poolName, dispatch, isValid]);
 
   // Failure Domain
   React.useEffect(() => {

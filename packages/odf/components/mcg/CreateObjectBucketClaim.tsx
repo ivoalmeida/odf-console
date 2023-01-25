@@ -118,13 +118,11 @@ export const CreateOBCForm: React.FC<CreateOBCFormProps> = (props) => {
     delayError: undefined,
   });
 
-  React.useEffect(() => {
-    const subscription = watch((data) => {
-      onScChange(isValid ? data['obcName'] : undefined);
-    });
+  const obcName = watch('obcName');
 
-    return () => subscription.unsubscribe();
-  }, [watch, onScChange, isValid]);
+  React.useEffect(() => {
+    onScChange(isValid ? obcName : undefined);
+  }, [obcName, onScChange, isValid]);
 
   React.useEffect(() => {
     const obj: K8sResourceKind = {
