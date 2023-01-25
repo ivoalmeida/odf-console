@@ -54,8 +54,7 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
   const [existingNames, setExistingNames] = React.useState<string[]>([]);
 
   const [data, loaded, loadError] = useK8sList<BucketClassKind>(
-    NooBaaBucketClassModel,
-    'openshift-storage'
+    NooBaaBucketClassModel
   );
 
   React.useEffect(() => {
@@ -112,8 +111,10 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
   const bucketClassName = watch('bucketclassname-input');
 
   React.useEffect(() => {
-    if (isValid)
-      dispatch({ type: 'setBucketClassName', name: bucketClassName });
+    dispatch({
+      type: 'setBucketClassName',
+      name: isValid ? bucketClassName : '',
+    });
   }, [bucketClassName, dispatch, isValid]);
 
   return (
