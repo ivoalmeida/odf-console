@@ -18,7 +18,7 @@ import {
   K8sResourceCommon,
 } from '@openshift-console/dynamic-plugin-sdk';
 import classNames from 'classnames';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import * as Yup from 'yup';
 import {
   ActionGroup,
@@ -112,9 +112,6 @@ const createSecret = async (
 
 const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
   const { t } = useCustomTranslation();
-  const [provider, setProvider] = React.useState(BC_PROVIDERS.AWS);
-  const [pvc, setPVC] = React.useState<PersistentVolumeClaimKind>(null);
-  const [folderName, setFolderName] = React.useState('');
   const [providerDataState, providerDataDispatch] = React.useReducer(
     providerDataReducer,
     initialState
@@ -164,7 +161,7 @@ const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
       ),
   });
   const resolver = useYupValidationResolver(schema);
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, watch } = useForm({
     mode: 'all',
     reValidateMode: 'onChange',
     resolver: resolver,
@@ -174,13 +171,20 @@ const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
     shouldUnregister: false,
     shouldUseNativeValidation: false,
     delayError: undefined,
+    defaultValues: {
+      ['provider-name']: BC_PROVIDERS.AWS,
+    },
   });
+
+  const provider = watch('provider-name');
 
   const onSubmit = async (values, event) => {
     event.preventDefault();
     setProgress(true);
     try {
       const nsName = values['ns-name'];
+      const pvc = values['pvc-name'];
+      const folderName = values['folder-name'];
       let { secretName } = providerDataState;
       if (!secretName) {
         /** Create a secret if secret ==='' */
@@ -289,12 +293,18 @@ const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
         className="nb-endpoints-form-entry"
         isRequired
       >
-        <StaticDropdown
-          className="nb-endpoints-form-entry__dropdown"
-          onSelect={setProvider as any}
-          dropdownItems={PROVIDERS}
-          defaultSelection={provider}
-          data-test="namespacestore-provider"
+        <Controller
+          name="provider-name"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <StaticDropdown
+              className="nb-endpoints-form-entry__dropdown"
+              onSelect={onChange}
+              dropdownItems={PROVIDERS}
+              defaultSelection={value}
+              data-test="namespacestore-provider"
+            />
+          )}
         />
       </FormGroup>
       {(provider === BC_PROVIDERS.AWS ||
@@ -317,21 +327,27 @@ const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
             className="nb-endpoints-form-entry"
             isRequired
           >
-            <ResourceDropdown<PersistentVolumeClaimKind>
-              id="pvc-name"
-              resourceModel={PersistentVolumeClaimModel}
-              resource={{
-                kind: PersistentVolumeClaimModel.kind,
-                isList: true,
-                namespace,
-              }}
-              onSelect={setPVC}
-              filterResource={(pvcObj: PersistentVolumeClaimKind) =>
-                pvcObj?.status?.phase === 'Bound' &&
-                pvcObj?.spec?.accessModes.some(
-                  (mode) => mode === 'ReadWriteMany'
-                )
-              }
+            <Controller
+              name="pvc-name"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <ResourceDropdown<PersistentVolumeClaimKind>
+                  id="pvc-name"
+                  resourceModel={PersistentVolumeClaimModel}
+                  resource={{
+                    kind: PersistentVolumeClaimModel.kind,
+                    isList: true,
+                    namespace,
+                  }}
+                  onSelect={onChange}
+                  filterResource={(pvcObj: PersistentVolumeClaimKind) =>
+                    pvcObj?.status?.phase === 'Bound' &&
+                    pvcObj?.spec?.accessModes.some(
+                      (mode) => mode === 'ReadWriteMany'
+                    )
+                  }
+                />
+              )}
             />
           </FormGroup>
           <FormGroup
@@ -343,12 +359,18 @@ const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
             )}
             isRequired
           >
-            <TextInput
-              id="folder-name"
-              onChange={setFolderName}
-              value={folderName}
-              data-test="folder-name"
-              placeholder="Please enter the folder name"
+            <Controller
+              name="folder-name"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  id="folder-name"
+                  onChange={onChange}
+                  value={value}
+                  data-test="folder-name"
+                  placeholder="Please enter the folder name"
+                />
+              )}
             />
           </FormGroup>
         </>
