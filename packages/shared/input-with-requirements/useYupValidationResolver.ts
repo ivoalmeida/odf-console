@@ -1,40 +1,48 @@
 import { useCallback } from 'react';
-import { AnySchema } from 'yup';
+import { Resolver } from 'react-hook-form';
+import { AnySchema, ValidationError } from 'yup';
 
-const useYupValidationResolver = <T>(validationSchema: AnySchema) =>
+export type ValidationErrorMessage = { type: string; field?: string };
+
+export type ValidationErrorMessages = {
+  type?: string;
+  message?: string;
+  messages?: Record<string, ValidationErrorMessage>;
+};
+
+const useYupValidationResolver = <T>(validationSchema: AnySchema): Resolver =>
   useCallback(
-    async (data: T) => {
-      try {
-        const values = await validationSchema?.validate(data, {
+    async (data: T) =>
+      validationSchema
+        ?.validate(data, {
           abortEarly: false,
-        });
-
-        return {
-          values,
-          errors: {},
-        };
-      } catch (errors: any) {
-        return {
+        })
+        .then((values: T) => ({ values, errors: {} }))
+        .catch((errors: any) => ({
           values: {},
-          errors: errors?.inner?.reduce((allErrors, currentError) => {
-            return {
-              ...allErrors,
-              [currentError.path]: {
-                type: currentError.type ?? 'validation',
-                message: currentError.message,
-                messages: {
-                  ...allErrors[currentError.path]?.messages,
-                  [currentError.message]: {
-                    type: currentError.type ?? 'validation',
-                    field: currentError.path,
+          errors: errors?.inner?.reduce(
+            (
+              allErrors: Record<string, ValidationErrorMessages>,
+              currentError: ValidationError
+            ) => {
+              return {
+                ...allErrors,
+                [currentError.path]: {
+                  type: currentError.type ?? 'validation',
+                  message: currentError.message,
+                  messages: {
+                    ...allErrors[currentError.path]?.messages,
+                    [currentError.message]: {
+                      type: currentError.type ?? 'validation',
+                      field: currentError.path,
+                    },
                   },
                 },
-              },
-            };
-          }, {}),
-        };
-      }
-    },
+              };
+            },
+            {}
+          ),
+        })),
     [validationSchema]
   );
 
