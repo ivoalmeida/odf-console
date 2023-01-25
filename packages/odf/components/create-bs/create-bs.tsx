@@ -17,7 +17,7 @@ import {
   useFlag,
 } from '@openshift-console/dynamic-plugin-sdk';
 import classNames from 'classnames';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useHistory } from 'react-router';
 import * as Yup from 'yup';
 import { ActionGroup, Button, FormGroup, Form } from '@patternfly/react-core';
@@ -48,9 +48,15 @@ const externalProviders = getExternalProviders(StoreType.BS);
 const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
   props
 ) => {
+  const {
+    className,
+    isPage,
+    appName,
+    namespace = CEPH_STORAGE_NAMESPACE,
+    onCancel,
+    onClose,
+  } = props;
   const { t } = useCustomTranslation();
-  const [bsName, setBsName] = React.useState('');
-  const [provider, setProvider] = React.useState(BC_PROVIDERS.AWS);
   const [providerDataState, providerDataDispatch] = React.useReducer(
     providerDataReducer,
     initialState
@@ -89,11 +95,12 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
         fieldRequirements[3],
         (value: string) => !!!existingNames.includes(value)
       ),
+    ['provider-name']: Yup.string().required(),
   });
 
   const [data, loaded, loadError] = useK8sList<BackingStoreKind>(
     NooBaaBackingStoreModel,
-    'openshift-storage'
+    namespace
   );
   React.useEffect(() => {
     if (loaded) {
@@ -106,15 +113,11 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
   const resolver = useYupValidationResolver(schema);
 
   const {
-    className,
-    isPage,
-    appName,
-    namespace = CEPH_STORAGE_NAMESPACE,
-    onCancel,
-    onClose,
-  } = props;
-
-  const { control, handleSubmit } = useForm({
+    control,
+    handleSubmit,
+    watch,
+    formState: { isValid, isValidating },
+  } = useForm({
     mode: 'all',
     reValidateMode: 'onChange',
     resolver: resolver,
@@ -124,12 +127,18 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
     shouldUnregister: false,
     shouldUseNativeValidation: false,
     delayError: undefined,
+    defaultValues: {
+      ['provider-name']: BC_PROVIDERS.AWS,
+    },
   });
+
+  const provider = watch('provider-name');
 
   const onSubmit = (values, event) => {
     event.preventDefault();
     setProgress(true);
-    setBsName(values['backingstore-name']);
+    const bsName = values['backingstore-name'];
+    const provider = values['provider-name'];
     /** Create a secret if secret ==='' */
     let { secretName } = providerDataState;
     const promises = [];
@@ -257,12 +266,18 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
         className="nb-endpoints-form-entry"
         isRequired
       >
-        <StaticDropdown
-          className="nb-endpoints-form-entry__dropdown"
-          onSelect={(key) => setProvider(key as BC_PROVIDERS)}
-          dropdownItems={PROVIDERS}
-          defaultSelection={BC_PROVIDERS.AWS}
-          data-test="backingstore-provider"
+        <Controller
+          name="provider-name"
+          control={control}
+          render={({ field: { onChange } }) => (
+            <StaticDropdown
+              className="nb-endpoints-form-entry__dropdown"
+              onSelect={onChange}
+              dropdownItems={PROVIDERS}
+              defaultSelection={BC_PROVIDERS.AWS}
+              data-test="backingstore-provider"
+            />
+          )}
         />
       </FormGroup>
       {provider === BC_PROVIDERS.GCP && (
@@ -291,7 +306,10 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
         <ActionGroup>
           <Button
             isDisabled={
-              provider === BC_PROVIDERS.PVC && providerDataState.numVolumes < 1
+              (provider === BC_PROVIDERS.PVC &&
+                providerDataState.numVolumes < 1) ||
+              !isValid ||
+              isValidating
             }
             type="submit"
             data-test="backingstore-create-button"
