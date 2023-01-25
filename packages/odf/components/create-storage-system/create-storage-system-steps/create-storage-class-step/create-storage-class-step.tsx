@@ -95,16 +95,18 @@ export const CreateStorageClass: React.FC<CreateStorageClassProps> = ({
     delayError: undefined,
   });
 
-  const poolName = watch('storage-class-name');
-
   React.useEffect(() => {
-    dispatch({
-      type: 'wizard/setStorageClass',
-      payload: {
-        name: isValid ? poolName : undefined,
-      },
+    const subscription = watch((data) => {
+      dispatch({
+        type: 'wizard/setStorageClass',
+        payload: {
+          name: isValid ? data['storage-class-name'] : undefined,
+        },
+      });
     });
-  }, [poolName, dispatch, isValid]);
+
+    return () => subscription.unsubscribe();
+  }, [watch, dispatch, isValid]);
 
   return (
     <Form className="odf-create-storage-class__form">

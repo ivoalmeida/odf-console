@@ -109,12 +109,16 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
     delayError: undefined,
   });
 
-  const bucketClassName = watch('bucketclassname-input');
-
   React.useEffect(() => {
-    if (isValid)
-      dispatch({ type: 'setBucketClassName', name: bucketClassName });
-  }, [bucketClassName, dispatch, isValid]);
+    const subscription = watch((data) => {
+      dispatch({
+        type: 'setBucketClassName',
+        name: isValid ? data['bucketclassname-input'] : undefined,
+      });
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, dispatch, isValid]);
 
   return (
     <div className="nb-create-bc-step-page">
