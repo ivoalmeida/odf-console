@@ -89,10 +89,7 @@ export const BlockPoolBody = (props: BlockPoolBodyPros) => {
 
   const [existingNames, setExistingNames] = React.useState<string[]>([]);
 
-  const [data, loaded, loadError] = useK8sList(
-    CephBlockPoolModel,
-    'openshift-storage'
-  );
+  const [data, loaded, loadError] = useK8sList(CephBlockPoolModel);
   React.useEffect(() => {
     if (loaded) {
       const names = data?.map((data) => getName(data));
