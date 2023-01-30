@@ -112,7 +112,10 @@ export const CreateStorageClass: React.FC<CreateStorageClassProps> = ({
         control={control}
         fieldRequirements={fieldRequirements}
         defaultValue={storageClass.name}
-        popoverProps={{ headerContent: t('Name requirements') }}
+        popoverProps={{
+          headerContent: t('Name requirements'),
+          footerContent: `${t('Example')}: my-storage-class`,
+        }}
         formGroupProps={{
           label: t('StorageClass name'),
           fieldId: 'storage-class-name',

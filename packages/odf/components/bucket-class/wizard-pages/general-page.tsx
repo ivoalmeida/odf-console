@@ -173,7 +173,10 @@ const GeneralPage: React.FC<GeneralPageProps> = ({ dispatch, state }) => {
         <TextInputWithFieldRequirements
           control={control}
           fieldRequirements={fieldRequirements}
-          popoverProps={{ headerContent: t('Name requirements') }}
+          popoverProps={{
+            headerContent: t('Name requirements'),
+            footerContent: `${t('Example')}: my-multi-cloud-mirror`,
+          }}
           formGroupProps={{
             className: 'nb-create-bc-step-page-form__element',
             fieldId: 'bucketclassname-input',

@@ -277,7 +277,10 @@ export const BlockPoolBody = (props: BlockPoolBodyPros) => {
           <TextInputWithFieldRequirements
             control={control}
             fieldRequirements={fieldRequirements}
-            popoverProps={{ headerContent: t('Name requirements') }}
+            popoverProps={{
+              headerContent: t('Name requirements'),
+              footerContent: `${t('Example')}: my-block-pool`,
+            }}
             formGroupProps={{
               label: t('Pool name'),
               fieldId: 'pool-name',
