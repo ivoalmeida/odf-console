@@ -97,8 +97,7 @@ export const CreateOBCForm: React.FC<CreateOBCFormProps> = (props) => {
         'unique-name',
         fieldRequirements[3],
         (value: string) => !!!existingNames.includes(value)
-      )
-      .notRequired(),
+      ),
   });
 
   const resolver = useYupValidationResolver(schema);
