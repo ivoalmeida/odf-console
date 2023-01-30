@@ -237,6 +237,7 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
       <TextInputWithFieldRequirements
         control={control}
         fieldRequirements={fieldRequirements}
+        popoverProps={{ headerContent: t('Name requirements') }}
         formGroupProps={{
           label: t('BackingStore Name'),
           fieldId: 'backingstore-name',

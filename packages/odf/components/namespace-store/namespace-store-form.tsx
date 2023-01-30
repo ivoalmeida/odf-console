@@ -266,6 +266,7 @@ const NamespaceStoreForm: React.FC<NamespaceStoreFormProps> = (props) => {
       <TextInputWithFieldRequirements
         control={control}
         fieldRequirements={fieldRequirements}
+        popoverProps={{ headerContent: t('Name requirements') }}
         formGroupProps={{
           label: t('Namespace store name'),
           fieldId: 'namespacestore-name',

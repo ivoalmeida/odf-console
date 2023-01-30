@@ -177,6 +177,7 @@ export const CreateOBCForm: React.FC<CreateOBCFormProps> = (props) => {
       <TextInputWithFieldRequirements
         control={control}
         fieldRequirements={fieldRequirements}
+        popoverProps={{ headerContent: t('Name requirements') }}
         formGroupProps={{
           label: t('ObjectBucketClaim Name'),
           fieldId: 'obc-name',

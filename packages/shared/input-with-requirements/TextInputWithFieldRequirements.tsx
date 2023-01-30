@@ -10,6 +10,7 @@ import {
   InputGroup,
   TextInput,
   Popover,
+  PopoverProps,
   PopoverPosition,
   HelperText,
   HelperTextItem,
@@ -29,6 +30,7 @@ export type TextInputWithFieldRequirementsProps = {
     ['data-test']: string;
     disabled?: boolean;
   };
+  popoverProps: Omit<PopoverProps, 'bodyContent'>;
 };
 
 export type ValidationIconProp = {
@@ -68,6 +70,7 @@ const TextInputWithFieldRequirements: React.FC<TextInputWithFieldRequirementsPro
     control,
     formGroupProps,
     textInputProps,
+    popoverProps,
     defaultValue = '',
   }) => {
     const {
@@ -121,13 +124,12 @@ const TextInputWithFieldRequirements: React.FC<TextInputWithFieldRequirementsPro
             isVisible={isVisible}
             shouldOpen={() => setIsVisible(true)}
             shouldClose={() => setIsVisible(false)}
-            headerContent={'Field requirements'}
             bodyContent={
               <HelperText component="ul">
                 {Object.keys(state.fieldRequirements).map((rule) => {
                   return (
                     <HelperTextItem
-                      hasIcon
+                      isDynamic
                       variant={state.fieldRequirements[rule]}
                       component="li"
                       key={rule}
@@ -138,6 +140,7 @@ const TextInputWithFieldRequirements: React.FC<TextInputWithFieldRequirementsPro
                 })}
               </HelperText>
             }
+            {...popoverProps}
           >
             <Button variant="plain" aria-label="Validation" tabIndex={-1}>
               <ValidationIcon status={validated} />
