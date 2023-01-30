@@ -163,6 +163,7 @@
   "Data loss may occur, only recommended for small clusters or when backups are available or data loss is acceptable": "Data loss may occur, only recommended for small clusters or when backups are available or data loss is acceptable",
   "{{replica}} Replication": "{{replica}} Replication",
   "Name requirements": "Name requirements",
+  "Example": "Example",
   "Pool name": "Pool name",
   "pool-name-help": "pool-name-help",
   "my-block-pool": "my-block-pool",
