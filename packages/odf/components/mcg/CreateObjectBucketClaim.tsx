@@ -84,6 +84,7 @@ export const CreateOBCForm: React.FC<CreateOBCFormProps> = (props) => {
 
   const schema = Yup.object({
     obcName: Yup.string()
+      .notRequired()
       .max(253, fieldRequirements[0])
       .matches(
         /^(?![-.])([a-z0-9]|[-.]*([a-z0-9]))+(?![-.])$/,

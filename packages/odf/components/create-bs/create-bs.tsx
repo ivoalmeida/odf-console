@@ -49,7 +49,6 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
   props
 ) => {
   const { t } = useCustomTranslation();
-  const [bsName, setBsName] = React.useState('');
   const [provider, setProvider] = React.useState(BC_PROVIDERS.AWS);
   const [providerDataState, providerDataDispatch] = React.useReducer(
     providerDataReducer,
@@ -62,6 +61,15 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
   const isODF = useFlag(ODF_MODEL_FLAG);
 
   const history = useHistory();
+
+  const {
+    className,
+    isPage,
+    appName,
+    namespace = CEPH_STORAGE_NAMESPACE,
+    onCancel,
+    onClose,
+  } = props;
 
   const [existingNames, setNames] = React.useState<string[]>([]);
 
@@ -77,7 +85,7 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
       .required()
       .max(43, fieldRequirements[0])
       .matches(
-        /^(?![-.])([a-z0-9]|[-.]([a-z0-9]))+(?![-.])$/,
+        /^(?![-.])([a-z0-9]|[-.]*([a-z0-9]))+(?![-.])$/,
         fieldRequirements[1]
       )
       .matches(
@@ -93,7 +101,7 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
 
   const [data, loaded, loadError] = useK8sList<BackingStoreKind>(
     NooBaaBackingStoreModel,
-    'openshift-storage'
+    namespace
   );
   React.useEffect(() => {
     if (loaded) {
@@ -106,15 +114,10 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
   const resolver = useYupValidationResolver(schema);
 
   const {
-    className,
-    isPage,
-    appName,
-    namespace = CEPH_STORAGE_NAMESPACE,
-    onCancel,
-    onClose,
-  } = props;
-
-  const { control, handleSubmit } = useForm({
+    control,
+    handleSubmit,
+    formState: { isValid, isValidating },
+  } = useForm({
     mode: 'all',
     reValidateMode: 'onChange',
     resolver: resolver,
@@ -129,7 +132,7 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
   const onSubmit = (values, event) => {
     event.preventDefault();
     setProgress(true);
-    setBsName(values['backingstore-name']);
+    const bsName = values['backingstore-name'];
     /** Create a secret if secret ==='' */
     let { secretName } = providerDataState;
     const promises = [];
@@ -291,7 +294,10 @@ const CreateBackingStoreForm: React.FC<CreateBackingStoreFormProps> = (
         <ActionGroup>
           <Button
             isDisabled={
-              provider === BC_PROVIDERS.PVC && providerDataState.numVolumes < 1
+              (provider === BC_PROVIDERS.PVC &&
+                providerDataState.numVolumes < 1) ||
+              !isValid ||
+              isValidating
             }
             type="submit"
             data-test="backingstore-create-button"
