@@ -4,15 +4,13 @@ import ResourceDropdown from '@odf/shared/dropdown/ResourceDropdown';
 import ResourcesDropdown from '@odf/shared/dropdown/ResourceDropdown';
 import { ButtonBar } from '@odf/shared/generic/ButtonBar';
 import { useK8sList } from '@odf/shared/hooks/useK8sList';
-import {
-  TextInputWithFieldRequirements,
-  useYupValidationResolver,
-} from '@odf/shared/input-with-requirements';
+import { TextInputWithFieldRequirements } from '@odf/shared/input-with-requirements';
 import { StorageClassModel } from '@odf/shared/models';
 import { getName } from '@odf/shared/selectors';
 import { K8sResourceKind, StorageClassResourceKind } from '@odf/shared/types';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
 import { referenceForModel, resourcePathFromModel } from '@odf/shared/utils';
+import { useYupValidationResolver } from '@odf/shared/yup-validation-resolver';
 import {
   getAPIVersionForModel,
   k8sCreate,

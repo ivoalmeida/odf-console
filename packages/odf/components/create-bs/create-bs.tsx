@@ -3,14 +3,12 @@ import { CEPH_STORAGE_NAMESPACE } from '@odf/shared/constants';
 import StaticDropdown from '@odf/shared/dropdown/StaticDropdown';
 import { ButtonBar } from '@odf/shared/generic/ButtonBar';
 import { useK8sList } from '@odf/shared/hooks/useK8sList';
-import {
-  TextInputWithFieldRequirements,
-  useYupValidationResolver,
-} from '@odf/shared/input-with-requirements';
+import { TextInputWithFieldRequirements } from '@odf/shared/input-with-requirements';
 import { SecretModel } from '@odf/shared/models';
 import { getName } from '@odf/shared/selectors';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
 import { referenceForModel } from '@odf/shared/utils';
+import { useYupValidationResolver } from '@odf/shared/yup-validation-resolver';
 import {
   getAPIVersionForModel,
   k8sCreate,

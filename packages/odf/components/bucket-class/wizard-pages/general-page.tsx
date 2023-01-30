@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { useK8sList } from '@odf/shared/hooks/useK8sList';
-import {
-  TextInputWithFieldRequirements,
-  useYupValidationResolver,
-} from '@odf/shared/input-with-requirements';
+import { TextInputWithFieldRequirements } from '@odf/shared/input-with-requirements';
 import { getName } from '@odf/shared/selectors';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
+import { useYupValidationResolver } from '@odf/shared/yup-validation-resolver';
 import { useFlag } from '@openshift-console/dynamic-plugin-sdk';
 import { TFunction } from 'i18next';
 import { useForm } from 'react-hook-form';

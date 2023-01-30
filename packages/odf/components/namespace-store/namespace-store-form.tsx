@@ -4,14 +4,12 @@ import ResourceDropdown from '@odf/shared/dropdown/ResourceDropdown';
 import StaticDropdown from '@odf/shared/dropdown/StaticDropdown';
 import { ButtonBar } from '@odf/shared/generic/ButtonBar';
 import { useK8sList } from '@odf/shared/hooks/useK8sList';
-import {
-  TextInputWithFieldRequirements,
-  useYupValidationResolver,
-} from '@odf/shared/input-with-requirements';
+import { TextInputWithFieldRequirements } from '@odf/shared/input-with-requirements';
 import { PersistentVolumeClaimModel, SecretModel } from '@odf/shared/models';
 import { getName } from '@odf/shared/selectors';
 import { PersistentVolumeClaimKind, SecretKind } from '@odf/shared/types';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
+import { useYupValidationResolver } from '@odf/shared/yup-validation-resolver';
 import {
   getAPIVersionForModel,
   k8sCreate,

@@ -2,10 +2,7 @@ import * as React from 'react';
 import { checkArbiterCluster } from '@odf/core/utils';
 import { useK8sGet } from '@odf/shared/hooks/k8s-get-hook';
 import { useK8sList } from '@odf/shared/hooks/useK8sList';
-import {
-  TextInputWithFieldRequirements,
-  useYupValidationResolver,
-} from '@odf/shared/input-with-requirements';
+import { TextInputWithFieldRequirements } from '@odf/shared/input-with-requirements';
 import { getName } from '@odf/shared/selectors';
 import {
   ListKind,
@@ -13,6 +10,7 @@ import {
   CephClusterKind,
 } from '@odf/shared/types';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
+import { useYupValidationResolver } from '@odf/shared/yup-validation-resolver';
 import { useFlag } from '@openshift-console/dynamic-plugin-sdk';
 import * as _ from 'lodash-es';
 import { useForm } from 'react-hook-form';

@@ -2,14 +2,12 @@ import * as React from 'react';
 import { getExternalStorage } from '@odf/core/components/utils';
 import { ExternalStateValues, ExternalStateKeys } from '@odf/core/types';
 import { useK8sList } from '@odf/shared/hooks/useK8sList';
-import {
-  TextInputWithFieldRequirements,
-  useYupValidationResolver,
-} from '@odf/shared/input-with-requirements';
+import { TextInputWithFieldRequirements } from '@odf/shared/input-with-requirements';
 import { StorageClassModel } from '@odf/shared/models';
 import { getName } from '@odf/shared/selectors';
 import { StorageSystemKind } from '@odf/shared/types';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
+import { useYupValidationResolver } from '@odf/shared/yup-validation-resolver';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { Form, TextContent, TextVariants, Text } from '@patternfly/react-core';
