@@ -162,6 +162,7 @@
   "Cannot be used before": "Cannot be used before",
   "Data loss may occur, only recommended for small clusters or when backups are available or data loss is acceptable": "Data loss may occur, only recommended for small clusters or when backups are available or data loss is acceptable",
   "{{replica}} Replication": "{{replica}} Replication",
+  "Name requirements": "Name requirements",
   "Pool name": "Pool name",
   "pool-name-help": "pool-name-help",
   "my-block-pool": "my-block-pool",
