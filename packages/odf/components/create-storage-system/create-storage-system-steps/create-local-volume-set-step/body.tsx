@@ -9,10 +9,18 @@ import {
 } from '@odf/core/constants';
 import { MultiSelectDropdown } from '@odf/shared/dropdown/multiselectdropdown';
 import { SingleSelectDropdown } from '@odf/shared/dropdown/singleselectdropdown';
+import { useK8sList } from '@odf/shared/hooks/useK8sList';
+import { TextInputWithFieldRequirements } from '@odf/shared/input-with-requirements';
+import { StorageClassModel } from '@odf/shared/models';
+import { getName } from '@odf/shared/selectors';
 import { NodeKind } from '@odf/shared/types';
+import { StorageSystemKind } from '@odf/shared/types';
 import { useCustomTranslation } from '@odf/shared/useCustomTranslationHook';
+import { useYupValidationResolver } from '@odf/shared/yup-validation-resolver';
 import { TFunction } from 'i18next';
 import * as _ from 'lodash-es';
+import { useForm } from 'react-hook-form';
+import * as Yup from 'yup';
 import { SelectOption } from '@patternfly/react-core';
 import {
   FormGroup,
@@ -149,6 +157,72 @@ export const LocalVolumeSetBody: React.FC<LocalVolumeSetBodyProps> = ({
     setRadio(value);
   };
 
+  const [existingNames, setExistingNames] = React.useState<string[]>([]);
+
+  const [data, loaded, loadError] =
+    useK8sList<StorageSystemKind>(StorageClassModel);
+  React.useEffect(() => {
+    if (loaded) {
+      const names = data?.map((data: StorageSystemKind) => getName(data));
+      setExistingNames(names);
+    }
+    if (loadError) setExistingNames([]);
+  }, [data, loaded, loadError]);
+
+  const fieldRequirements = [
+    t('No more than 253 characters'),
+    t('Starts and ends with a lowercase letter or number'),
+    t('Only lowercase letters, numbers, non-consecutive periods, or hyphens'),
+    t('Cannot be used before'),
+  ];
+
+  const schema = Yup.object({
+    ['create-lvs-storage-class-name']: Yup.string()
+      .required()
+      .max(253, fieldRequirements[0])
+      .matches(
+        /^(?![-.])([a-z0-9]|[-.]*([a-z0-9]))+(?![-.])$/,
+        fieldRequirements[1]
+      )
+      .matches(
+        /^[a-z0-9]+([a-z0-9]|([-.](?![-.])))*[a-z0-9]*$/,
+        fieldRequirements[2]
+      )
+      .test(
+        'unique-name',
+        fieldRequirements[3],
+        (value: string) => !!!existingNames.includes(value)
+      ),
+  });
+  const resolver = useYupValidationResolver(schema);
+  const {
+    control,
+    watch,
+    formState: { isValid },
+  } = useForm({
+    mode: 'all',
+    reValidateMode: 'onChange',
+    resolver: resolver,
+    context: undefined,
+    criteriaMode: 'firstError',
+    shouldFocusError: true,
+    shouldUnregister: false,
+    shouldUseNativeValidation: false,
+    delayError: undefined,
+  });
+
+  const createLvsStorageClassName = watch('create-lvs-storage-class-name');
+
+  React.useEffect(() => {
+    dispatch({
+      type: 'wizard/setStorageClass',
+      payload: {
+        name: isValid ? createLvsStorageClassName : undefined,
+        provisioner: NO_PROVISIONER,
+      },
+    });
+  }, [createLvsStorageClassName, dispatch, isValid]);
+
   return (
     <>
       <FormGroup
@@ -167,23 +241,27 @@ export const LocalVolumeSetBody: React.FC<LocalVolumeSetBodyProps> = ({
           isRequired
         />
       </FormGroup>
-      <FormGroup
-        label={t('StorageClass name')}
-        fieldId="create-lvs-storage-class-name"
-      >
-        <TextInput
-          type={TextInputTypes.text}
-          id="create-lvs-storage-class-name"
-          value={storageClassName}
-          placeholder={state.volumeSetName}
-          onChange={(name: string) =>
-            dispatch({
-              type: 'wizard/setStorageClass',
-              payload: { name, provisioner: NO_PROVISIONER },
-            })
-          }
-        />
-      </FormGroup>
+      <TextInputWithFieldRequirements
+        control={control}
+        fieldRequirements={fieldRequirements}
+        defaultValue={storageClassName}
+        popoverProps={{
+          headerContent: t('Name requirements'),
+          footerContent: `${t('Example')}: my-storage-class`,
+        }}
+        formGroupProps={{
+          label: t('StorageClass name'),
+          fieldId: 'create-lvs-storage-class-name',
+        }}
+        textInputProps={{
+          id: 'create-lvs-storage-class-name',
+          name: 'create-lvs-storage-class-name',
+          type: TextInputTypes.text,
+          value: storageClassName,
+          placeholder: state.volumeSetName,
+          ['data-test']: 'create-lvs-storage-class-name',
+        }}
+      />
       <Text
         component={TextVariants.h3}
         className="odf-create-lvs__filter-volumes-text--margin"
