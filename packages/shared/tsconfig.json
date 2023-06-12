@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationDir": "build",
+    "outDir": "build",
+    "baseUrl": "./src",
+    "paths": {
+      "@odf/shared/*": ["./src/*"],
+      "packages/shared/*": ["./src/*"]
+    }
+  },
+  "exclude": ["node_modules", "build", "**/*.spec.ts", "**/*.spec.tsx"],
+  "include": ["src"]
+}
