@@ -3,7 +3,7 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "target": "es2017",
     "jsx": "react",
@@ -17,73 +17,8 @@
     "noEmitOnError": false,
     "outDir": "./build",
     "paths": {
-      "@odf/shared/status/icons": ["./src/status/icons"],
-      "@odf/shared/status/StatusIconAndText": [
-        "./src/status/StatusIconAndText"
-      ],
-      "@odf/shared/useCustomTranslationHook": [
-        "./src/useCustomTranslationHook.ts"
-      ],
-      "@odf/shared/utils": ["./src/utils"],
-      "@odf/shared/resource-link/plain-resource-link": [
-        "./src/resource-link/plain-resource-link"
-      ],
-      "@odf/shared/status/SecondaryStatus": ["./src/status/SecondaryStatus"],
-      "@odf/shared/generic/FieldLevelHelp": ["./src/generic/FieldLevelHelp"],
-      "@odf/shared/charts": ["./src/charts"],
-      "@odf/shared/details-page/datetime": ["./src/details-page/datetime"],
-      "@odf/shared/hooks/ref-width": ["./src/hooks/ref-width"],
-      "@odf/shared/hooks/custom-prometheus-poll": [
-        "./src/hooks/custom-prometheus-poll"
-      ],
-      "@odf/shared/dashboards/utilization-card/area-chart": [
-        "./src/dashboards/utilization-card/area-chart"
-      ],
-      "@odf/shared/dashboards/utilization-card/utilization-item": [
-        "./src/dashboards/utilization-card/utilization-item"
-      ],
-      "@odf/shared/utils/link": ["./src/utils/link"],
-      "@odf/shared/utils/error/http-error": ["./src/utils/error/http-error"],
-      "@odf/shared/status/Resource": ["./src/status/Resource"],
-      "@odf/shared/monitoring/useAlert": ["./src/monitoring/useAlert"],
-      "@odf/shared/models": ["./src/models"],
-      "@odf/shared/resource-link/resource-link": [
-        "./src/resource-link/resource-link"
-      ],
-      "@odf/shared/selectors": ["./src/selectors"],
-      "@odf/shared/status/Status": ["./src/status/Status"],
-      "@odf/shared/details-page/DetailsPage": [
-        "./src/details-page/DetailsPage"
-      ],
-      "@odf/shared/types": ["./src/types"],
-      "@odf/shared/constants": ["./src/constants"],
-      "@odf/shared/dashboards/utilization-card/prometheus-utilization-item": [
-        "./src/dashboards/utilization-card/prometheus-utilization-item"
-      ],
-      "@odf/shared/queries/deployment": ["./src/queries/deployment"],
-      "@odf/shared/hooks/deep-compare-memoize": [
-        "./src/hooks/deep-compare-memoize"
-      ],
-      "@odf/shared/queries/pod": ["./src/queries/pod"],
-      "@odf/shared/topology/sidebar/common/PodList": [
-        "./src/topology/sidebar/common/PodList"
-      ],
-      "@odf/shared/details-page/timestamp": ["./src/details-page/timestamp"],
-      "@odf/shared/heading/page-heading": ["./src/heading/page-heading"],
-      "@odf/shared/status/Node": ["./src/status/Node"],
-      "@odf/shared/components/list/DetailPropertyList": [
-        "./src/components/list/DetailPropertyList"
-      ],
-      "@odf/shared/components/list/DetailPropertyListItem": [
-        "./src/components/list/DetailPropertyListItem"
-      ],
-      "@odf/shared/queries/node": ["./src/queries/node"],
-      "@odf/shared/generic/Error": ["./src/generic/Error"],
-      "@odf/shared/dashboards/status-card/states": [
-        "./src/dashboards/status-card/states"
-      ],
-      "@odf/shared/utils/copy-to-clipboard": ["./src/utils/copy-to-clipboard"],
-      "packages/shared/types": ["./src/types"]
+      "@odf/shared/*": ["./src/*"],
+      "packages/shared/*": ["./src/*"]
     }
   },
   "exclude": ["**/*.spec.ts", "**/*.spec.tsx"],
