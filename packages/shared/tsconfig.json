@@ -21,6 +21,6 @@
       "packages/shared/*": ["./src/*"]
     }
   },
-  "exclude": ["**/*.spec.ts", "**/*.spec.tsx"],
+  "exclude": ["node_modules/**/*", "**/*.spec.ts", "**/*.spec.tsx"],
   "include": ["src"]
 }

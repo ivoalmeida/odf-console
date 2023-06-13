@@ -3,6 +3,7 @@
   "description": "Contains common ODF utilities.",
   "version": "0.0.0",
   "type": "module",
+  "private": "true",
   "scripts": {
     "build": "ts-node node_modules/.bin/webpack -c ./webpack.config.ts"
   },

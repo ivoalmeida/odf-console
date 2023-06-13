@@ -4,9 +4,14 @@
   "description": "ODF plugin",
   "license": "MIT",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/shared/**"
+    ]
+  },
   "repository": "git@github.com:red-hat-storage/odf-console.git",
   "scripts": {
     "clean": "yarn clean-mco && yarn clean-odf",

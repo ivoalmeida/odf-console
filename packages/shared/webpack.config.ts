@@ -1,6 +1,7 @@
 /* eslint-env node */
-import * as fs from 'fs';
+// import * as fs from 'fs';
 import * as path from 'path';
+import { ForkTsCheckerWebpackPlugin } from 'fork-ts-checker-webpack-plugin/lib/plugin';
 
 // const isDirectory = (dirPath: fs.PathLike) =>
 //   fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory();
@@ -13,7 +14,8 @@ import * as path from 'path';
  *  create index file
  *  write to it:
  *  export * from 'each-file-of-current-foilder'
- */ fs.existsSync(path);
+ */
+//fs.existsSync(path);
 // const fileNames = fs.readdirSync('./src').reduce(
 //   (acc, v) =>
 //     isDirectory(`./src/${v}`) && fs.existsSync(`./src/${v}/index.ts`)
@@ -32,10 +34,16 @@ import * as path from 'path';
 //       return console.log('Unable to scan directory: ' + err);
 //     }
 //     //listing all files using forEach
-//     files.forEach(function (file) {
+//     let exports = [];
+//     files.every(function (file) {
+//       if (fs.existsSync(file) && fs.lstatSync(file).isDirectory()) {
+//         return generateIndexes(file);
+//       }
+//       if (fs.existsSync('index.ts')) return;
+
 //       // Do whatever you want to do with the file
 //       console.log(file);
-//       fs.readdir('./src/' + file, (err, dfiles)=>{})
+//       // fs.readdir('./src/' + file, (err, dfiles)=>{})
 //     });
 //   });
 // }
@@ -47,22 +55,25 @@ const config = {
     // Nodes: './src/Nodes/index.ts',
     // alert: './src/alert/index.ts',
     // charts: './src/charts/index.ts',
-    // constants: './src/constants/index.ts',
-    // 'form-group-controller': './src/form-group-controller/index.ts',
-    // 'input-with-requirements': './src/input-with-requirements/index.ts',
+    constants: './src/constants/index.ts',
+    'form-group-controller': './src/form-group-controller/index.ts',
+    'input-with-requirements': './src/input-with-requirements/index.ts',
     // models: './src/models/index.ts',
     // queries: './src/queries/index.ts',
     // selectors: './src/selectors/index.ts',
     // topology: './src/topology/index.ts',
     // types: './src/types/index.ts',
-    // useCustomTranslationHook: './src/useCustomTranslationHook.ts',
-    // utils: './src/utils/index.ts',
+    useCustomTranslationHook: './src/useCustomTranslationHook.ts',
+    //utils: './src/utils/dashboard.ts',
     'yup-validation-resolver': './src/yup-validation-resolver/index.ts',
   },
   output: {
     path: path.resolve('./build'),
     filename: '[name].js',
     chunkFilename: '[name]-chunk.js',
+  },
+  watchOptions: {
+    ignored: ['node_modules', 'build'],
   },
   mode: process.env.NODE_ENV || 'development',
   module: {
@@ -134,6 +145,19 @@ const config = {
       },
     ],
   },
+  plugins: [
+    new ForkTsCheckerWebpackPlugin({
+      issue: {
+        exclude: [{ file: '**/node_modules/**/*' }],
+      },
+      typescript: {
+        diagnosticOptions: {
+          semantic: true,
+          syntactic: true,
+        },
+      },
+    }),
+  ],
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
