@@ -2,10 +2,15 @@
   "name": "@odf/shared",
   "description": "Contains common ODF utilities.",
   "version": "0.0.0",
-  "type": "module",
-  "private": "true",
+  "license": "MIT",
+  "private": true,
+  "main": "build/main.js",
+  "files": [
+    "./build"
+  ],
   "scripts": {
-    "build": "ts-node node_modules/.bin/webpack -c ./webpack.config.ts"
+    "build": "yarn run tsnode node_modules/.bin/webpack -c ./webpack.config.ts",
+    "tsnode": "ts-node -O '{\"module\":\"commonjs\"}'"
   },
   "dependencies": {
     "@openshift-console/dynamic-plugin-sdk": "0.0.19",

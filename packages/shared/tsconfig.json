@@ -3,7 +3,7 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "forceConsistentCasingInFileNames": true,
-    "module": "CommonJS",
+    "module": "esnext",
     "moduleResolution": "node",
     "target": "es2017",
     "jsx": "react",
