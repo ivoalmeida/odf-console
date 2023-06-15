@@ -25,15 +25,7 @@ export const ModalTitle: React.FC<ModalTitleProps> = ({
   </div>
 );
 
-export const ModalBody: React.SFC<ModalBodyProps> = ({ children }) => (
-  <div className="modal-body">
-    <div className="modal-body-content">
-      <div className="modal-body-inner-shadow-covers">{children}</div>
-    </div>
-  </div>
-);
-
-export const ModalFooter: React.SFC<ModalFooterProps> = ({
+const ModalFooter: React.SFC<ModalFooterProps> = ({
   message,
   errorMessage,
   inProgress,
