@@ -1,9 +1,9 @@
 {
   "name": "odfshared",
   "description": "Contains common ODF utilities.",
-  "version": "0.6.0",
+  "version": "0.9.1",
   "license": "MIT",
-  "main": "build/index.js",
+  "main": "build",
   "types": "build/index.d.ts",
   "files": [
     "build"
