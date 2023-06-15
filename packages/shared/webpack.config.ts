@@ -1,5 +1,5 @@
 /* eslint-env node */
-// import * as fs from 'fs';
+import * as fs from 'fs';
 import * as path from 'path';
 import { ForkTsCheckerWebpackPlugin } from 'fork-ts-checker-webpack-plugin/lib/plugin';
 
@@ -15,7 +15,7 @@ import { ForkTsCheckerWebpackPlugin } from 'fork-ts-checker-webpack-plugin/lib/p
  *  write to it:
  *  export * from 'each-file-of-current-foilder'
  */
-//fs.existsSync(path);
+// fs.existsSync(path);
 // const fileNames = fs.readdirSync('./src').reduce(
 //   (acc, v) =>
 //     isDirectory(`./src/${v}`) && fs.existsSync(`./src/${v}/index.ts`)
@@ -39,7 +39,7 @@ import { ForkTsCheckerWebpackPlugin } from 'fork-ts-checker-webpack-plugin/lib/p
 //       if (fs.existsSync(file) && fs.lstatSync(file).isDirectory()) {
 //         return generateIndexes(file);
 //       }
-//       if (fs.existsSync('index.ts')) return;
+//       // if (fs.existsSync('index.ts')) return;
 
 //       // Do whatever you want to do with the file
 //       console.log(file);
@@ -50,31 +50,61 @@ import { ForkTsCheckerWebpackPlugin } from 'fork-ts-checker-webpack-plugin/lib/p
 // generateIndexes();
 // console.log(fileNames);
 
+// function throughDirectory(directory) {
+//   fs.readdirSync(directory).forEach((File) => {
+//     const absolute = path.join(directory, File);
+//     if (fs.statSync(absolute).isDirectory()) return throughDirectory(absolute);
+//     else console.log(absolute);
+//   });
+// }
+
+// throughDirectory(path.resolve('./src'));
+
+const pkg = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, 'package.json'), {
+    encoding: 'utf-8',
+  })
+);
+
 const config = {
   entry: {
     // Nodes: './src/Nodes/index.ts',
     // alert: './src/alert/index.ts',
     // charts: './src/charts/index.ts',
-    constants: './src/constants/index.ts',
-    'form-group-controller': './src/form-group-controller/index.ts',
-    'input-with-requirements': './src/input-with-requirements/index.ts',
     // models: './src/models/index.ts',
     // queries: './src/queries/index.ts',
     // selectors: './src/selectors/index.ts',
     // topology: './src/topology/index.ts',
     // types: './src/types/index.ts',
-    useCustomTranslationHook: './src/useCustomTranslationHook.ts',
     //utils: './src/utils/dashboard.ts',
+    // constants: './src/constants/index.ts',
+    // 'form-group-controller': './src/form-group-controller/index.ts',
+    // 'input-with-requirements': './src/input-with-requirements/index.ts',
+    // useCustomTranslationHook: './src/useCustomTranslationHook.ts',
+    //     'yup-validation-resolver': './src/yup-validation-resolver/index.ts',
+    // index: [
+    //   './src/useCustomTranslationHook.ts',
+    //   './src/yup-validation-resolver/index.ts',
+    // ],
+    useCustomTranslationHook: './src/useCustomTranslationHook.ts',
     'yup-validation-resolver': './src/yup-validation-resolver/index.ts',
+    index: './src/index.ts',
   },
   output: {
-    path: path.resolve('./build'),
+    path: path.resolve(__dirname, './build'),
     filename: '[name].js',
     chunkFilename: '[name]-chunk.js',
+    library: {
+      type: 'module',
+    },
+  },
+  experiments: {
+    outputModule: true,
   },
   watchOptions: {
     ignored: ['node_modules', 'build'],
   },
+  externals: pkg.dependencies,
   mode: process.env.NODE_ENV || 'development',
   module: {
     rules: [

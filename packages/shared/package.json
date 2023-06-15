@@ -1,12 +1,12 @@
 {
-  "name": "@odf/shared",
+  "name": "odfshared",
   "description": "Contains common ODF utilities.",
-  "version": "0.0.0",
+  "version": "0.6.0",
   "license": "MIT",
-  "private": true,
-  "main": "build/main.js",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
-    "./build"
+    "build"
   ],
   "scripts": {
     "build": "yarn run tsnode node_modules/.bin/webpack -c ./webpack.config.ts",

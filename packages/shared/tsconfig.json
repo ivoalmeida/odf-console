@@ -8,6 +8,8 @@
     "target": "es2017",
     "jsx": "react",
     "allowJs": true,
+    "declaration": true,
+    "declarationDir": "build",
     "strict": false,
     "noUnusedLocals": true,
     "checkJs": true,
@@ -15,7 +17,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "noEmitOnError": false,
-    "outDir": "./build",
+    "outDir": "build",
     "paths": {
       "@odf/shared/*": ["./src/*"],
       "packages/shared/*": ["./src/*"]
