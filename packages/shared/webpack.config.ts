@@ -1,34 +1,40 @@
 /* eslint-env node */
-import * as fs from 'fs';
+// import * as fs from 'fs';
 import * as path from 'path';
 import { ForkTsCheckerWebpackPlugin } from 'fork-ts-checker-webpack-plugin/lib/plugin';
 import { Configuration } from 'webpack';
 
-const pkg = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, 'package.json'), {
-    encoding: 'utf-8',
-  })
-);
+// const pkg = JSON.parse(
+//   fs.readFileSync(path.resolve(__dirname, 'package.json'), {
+//     encoding: 'utf-8',
+//   })
+// );
+
+const NODE_ENV = (process.env.NODE_ENV ||
+  'development') as Configuration['mode'];
 
 const config: Configuration = {
   entry: './src/index.ts',
   output: {
-    path: path.resolve(__dirname, './build'),
+    path: path.resolve(__dirname, 'build'),
     filename: 'index.js',
-    chunkFilename: '[name]-chunk.js',
-    library: {
-      type: 'module',
-    },
+    libraryTarget: 'umd',
+    library: 'odfshared',
+    globalObject: 'this',
+
     clean: true,
-  },
-  experiments: {
-    outputModule: true,
   },
   watchOptions: {
     ignored: ['node_modules', 'build'],
   },
-  externals: pkg.dependencies,
-  mode: 'production',
+  // externals: pkg.dependencies,
+  externals: [
+    '@openshift-console/dynamic-plugin-sdk',
+    '@openshift-console/dynamic-plugin-sdk-internal',
+    '@openshift-console/dynamic-plugin-sdk-webpack',
+    '@openshift-console/plugin-shared',
+  ],
+  mode: NODE_ENV,
   module: {
     rules: [
       {
@@ -41,7 +47,6 @@ const config: Configuration = {
             happyPackMode: false,
           },
         },
-        exclude: /node_modules/,
       },
       {
         test: /\.scss$/,
@@ -97,6 +102,9 @@ const config: Configuration = {
       },
     }),
   ],
+  optimization: {
+    minimize: false,
+  },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
