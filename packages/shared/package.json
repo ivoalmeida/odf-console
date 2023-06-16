@@ -9,7 +9,9 @@
     "build"
   ],
   "scripts": {
-    "build": "yarn run tsnode node_modules/.bin/webpack -c ./webpack.config.ts",
+    "build": "yarn build:prod",
+    "build:prod": "yarn run tsnode node_modules/.bin/webpack --env production -c ./webpack.config.ts",
+    "build:dev": "yarn run tsnode node_modules/.bin/webpack --env development -c ./webpack.config.ts",
     "tsnode": "ts-node -O '{\"module\":\"commonjs\"}'"
   },
   "dependencies": {
