@@ -1,21 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
     "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "target": "es2017",
-    "jsx": "react",
-    "allowJs": true,
     "declaration": true,
     "declarationDir": "build",
-    "outDir": "build",
-    "paths": {
-      "@odf/shared/*": ["./src/*"],
-      "packages/shared/*": ["./src/*"]
-    }
+    "outDir": "build"
   },
   "exclude": ["node_modules", "build", "**/*.spec.ts", "**/*.spec.tsx"],
   "include": ["src"]

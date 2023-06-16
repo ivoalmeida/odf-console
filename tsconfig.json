@@ -18,6 +18,11 @@
       "packages/shared/*": ["./packages/shared/src/*"]
     }
   },
-  "exclude": ["**/*/build", "**/*.spec.ts", "**/*.spec.tsx"],
+  "exclude": [
+    "**/*/build",
+    "**/*/node_modules",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ],
   "include": ["packages"]
 }
