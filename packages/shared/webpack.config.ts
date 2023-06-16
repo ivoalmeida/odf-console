@@ -2,6 +2,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { ForkTsCheckerWebpackPlugin } from 'fork-ts-checker-webpack-plugin/lib/plugin';
+import { Configuration } from 'webpack';
 
 const pkg = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, 'package.json'), {
@@ -9,7 +10,7 @@ const pkg = JSON.parse(
   })
 );
 
-const config = {
+const config: Configuration = {
   entry: './src/index.ts',
   output: {
     path: path.resolve(__dirname, './build'),
@@ -18,6 +19,7 @@ const config = {
     library: {
       type: 'module',
     },
+    clean: true,
   },
   experiments: {
     outputModule: true,
@@ -26,7 +28,7 @@ const config = {
     ignored: ['node_modules', 'build'],
   },
   externals: pkg.dependencies,
-  mode: process.env.NODE_ENV || 'development',
+  mode: 'production',
   module: {
     rules: [
       {
