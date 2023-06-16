@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
@@ -10,19 +11,12 @@
     "allowJs": true,
     "declaration": true,
     "declarationDir": "build",
-    "strict": false,
-    "noUnusedLocals": true,
-    "checkJs": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "noEmitOnError": false,
     "outDir": "build",
     "paths": {
       "@odf/shared/*": ["./src/*"],
       "packages/shared/*": ["./src/*"]
     }
   },
-  "exclude": ["node_modules", "**/*.spec.ts", "**/*.spec.tsx"],
+  "exclude": ["node_modules", "build", "**/*.spec.ts", "**/*.spec.tsx"],
   "include": ["src"]
 }

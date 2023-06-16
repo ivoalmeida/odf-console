@@ -12,8 +12,12 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "noEmitOnError": false,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {
+      "@odf/shared/*": ["./packages/shared/src/*"],
+      "packages/shared/*": ["./packages/shared/src/*"]
+    }
   },
-  "exclude": ["**/*.spec.ts", "**/*.spec.tsx"],
+  "exclude": ["**/*/build", "**/*.spec.ts", "**/*.spec.tsx"],
   "include": ["packages"]
 }

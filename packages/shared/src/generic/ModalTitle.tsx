@@ -25,7 +25,7 @@ export const ModalTitle: React.FC<ModalTitleProps> = ({
   </div>
 );
 
-const ModalFooter: React.SFC<ModalFooterProps> = ({
+export const ModalFooter: React.SFC<ModalFooterProps> = ({
   message,
   errorMessage,
   inProgress,
