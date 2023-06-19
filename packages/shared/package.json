@@ -1,7 +1,7 @@
 {
-  "name": "@odf/shared",
+  "name": "odfshared",
   "description": "Contains common ODF utilities.",
-  "version": "0.0.0",
+  "version": "0.9.9",
   "license": "MIT",
   "main": "build",
   "types": "build/index.d.ts",
@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "build": "yarn build:prod",
-    "build:prod": "NODE_ENV=production yarn run tsnode node_modules/.bin/webpack -c ./webpack.config.ts",
-    "build:dev": "NODE_ENV=development yarn run tsnode node_modules/.bin/webpack -c ./webpack.config.ts",
+    "build:prod": "yarn run tsnode node_modules/.bin/webpack --mode=production -c ./webpack.config.ts",
+    "build:dev": "yarn run tsnode node_modules/.bin/webpack --mode=development -c ./webpack.config.ts",
     "tsnode": "ts-node -O '{\"module\":\"commonjs\"}'"
   },
   "dependencies": {
