@@ -17,7 +17,7 @@ const config: Configuration = {
   watchOptions: {
     ignored: ['node_modules', 'build'],
   },
-  externals: /^@openshift-console.*/,
+  externals: [/^@openshift-console.*/, 'react', 'react-dom', /^@patternfly.*/],
   mode: (process.env.NODE_ENV || 'development') as Configuration['mode'],
   module: {
     rules: [
