@@ -18,6 +18,7 @@ const config: Configuration = {
     ignored: ['node_modules', 'build'],
   },
   externals: [/^@openshift-console.*/, 'react', 'react-dom', /^@patternfly.*/],
+  devtool: 'source-map',
   mode: (process.env.NODE_ENV || 'development') as Configuration['mode'],
   module: {
     rules: [
@@ -87,7 +88,7 @@ const config: Configuration = {
     }),
   ],
   optimization: {
-    minimize: true,
+    minimize: false,
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
