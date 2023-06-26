@@ -57,7 +57,7 @@ const Tabs: React.FC<TabsProps> = ({
       <Tab
         eventKey={i + offset}
         title={<TabTitleText>{tab.title}</TabTitleText>}
-        translate={t}
+        translate="no"
         key={tab.title}
         data-test={`horizontal-link-${tab.title}`}
       >
