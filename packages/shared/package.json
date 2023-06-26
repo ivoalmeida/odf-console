@@ -1,24 +1,23 @@
 {
   "name": "odfshared",
   "description": "Contains common ODF utilities.",
-  "version": "0.9.18",
+  "version": "0.9.20",
   "license": "MIT",
-  "main": "build",
-  "types": "build/index.d.ts",
+  "main": "src/index.ts",
   "files": [
-    "build"
+    "src"
   ],
   "scripts": {
     "build": "yarn build:prod",
     "build:prod": "yarn run tsnode node_modules/.bin/webpack --mode=production -c ./webpack.config.ts",
     "build:dev": "yarn run tsnode node_modules/.bin/webpack --mode=development -c ./webpack.config.ts",
-    "tsnode": "ts-node -O '{\"module\":\"commonjs\"}'",
-    "install-peers": "install-peers",
-    "prepare": "install-peers"
+    "tsnode": "ts-node -O '{\"module\":\"commonjs\"}'"
   },
   "peerDependencies": {
     "@openshift-console/dynamic-plugin-sdk": "^0.0.19",
-    "@openshift-console/dynamic-plugin-sdk-internal": "^0.0.7",
+    "@openshift-console/dynamic-plugin-sdk-internal": "^0.0.7"
+  },
+  "dependencies": {
     "@patternfly/patternfly": "4.103.6",
     "@patternfly/react-charts": "^6.15.3",
     "@patternfly/react-core": "4.267.5",
@@ -26,10 +25,6 @@
     "@patternfly/react-table": "4.104.7",
     "@patternfly/react-tokens": "^4.12.0",
     "@patternfly/react-topology": "^4.90.38",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
-  },
-  "dependencies": {
     "classnames": "^2.3.1",
     "fuzzysearch": "^1.0.3",
     "i18next": "^20.2.1",
@@ -37,9 +32,11 @@
     "js-yaml": "^3.13.1",
     "lodash-es": "^4.17.21",
     "murmurhash-js": "^1.0.0",
+    "react": "^17.0.1",
     "react-copy-to-clipboard": "5.x",
     "react-dnd": "^15.1.1",
     "react-dnd-html5-backend": "^15.1.2",
+    "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.42.1",
     "react-i18next": "^11.11.4",
